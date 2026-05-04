@@ -1,58 +1,89 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>ระบบจัดการสินค้า</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <title>เว็บขายของสุดกาก</title>
+  <!-- ตัด Bootstrap ทิ้งเพื่อความกากระดับตำนาน -->
 </head>
-<body class="bg-light">
-<div class="container mt-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>🛒 รายการสินค้า</h2>
-    <a href="/create" class="btn btn-primary">+ เพิ่มสินค้า</a>
-  </div>
+<body bgcolor="#FFFF00" text="blue"> <!-- พื้นหลังเหลือง ตัวอักษรน้ำเงิน ตีกันสุดๆ -->
 
-  <table class="table table-bordered table-striped shadow">
-    <thead class="table-dark">
-      <tr>
-        <th>#</th>
-        <th>รูปภาพ</th>
-        <th>ชื่อสินค้า</th>
-        <th>ราคา</th>
-        <th>หมวดหมู่</th>
-        <th>สต็อก</th>
-        <th>จัดการ</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (products.length === 0) { %>
-        <tr><td colspan="7" class="text-center">ไม่มีสินค้า</td></tr>
-      <% } %>
-      <% products.forEach((product, index) => { %>
+  <center>
+    <h1><font color="red" size="7">=== Supermarket KIMDISNY ===</font></h1>
+    <marquee>ยินดีต้อนรับสู่ระบบจัดการสินค้าที่กากที่สุดในโลก!!!</marquee>
+    <br>
+    <a href="/products/new" style="background-color: lime; padding: 10px; border: 5px double red;">[ + ] เพิ่มสินค้าตรงนี้จ้า</a>
+  </center>
+
+  <hr border="5">
+
+  <div style="padding: 20px;">
+    <!-- แจ้งเตือนแบบบ้านๆ -->
+    <% if (success) { %>
+      <h2 style="color: white; background: black;">สถานะ: <%= success %> สำเร็จแล้วนะ!</h2>
+    <% } %>
+
+    <h3>ค้นหาที่นี่:</h3>
+    <form action="/" method="GET">
+        <input type="text" name="search" value="<%= search %>" style="width: 80%;">
+        <button type="submit" style="cursor: help;">กดค้นหา</button>
+    </form>
+
+    <br>
+
+    <table border="10" cellpadding="15" cellspacing="5" bgcolor="#FFFFFF" width="100%">
+      <thead bgcolor="pink">
         <tr>
-          <td><%= index + 1 %></td>
+          <th>ลำดับ</th>
+          <th>หน้าตาสินค้า</th>
+          <th>ชื่อ</th>
+          <th>หมวด</th>
+          <th>ราคา</th>
+          <th>สต็อก</th>
+          <th>ปุ่มกด</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (products.length === 0) { %>
+          <tr>
+            <td colspan="7" align="center"><h1>ไม่มีของว้อยยย!</h1></td>
+          </tr>
+        <% } %>
+        <% products.forEach((p, i) => { %>
+        <tr>
+          <td align="center"><%= i + 1 %></td>
           <td>
-            <% if (product.image) { %>
-              <img src="/uploads/<%= product.image %>" width="60" class="img-thumbnail">
+            <% if (p.image && p.image !== 'no-image.png') { %>
+              <!-- รูปใหญ่บ้างเล็กบ้าง ไม่จัดขนาด -->
+              <img src="/uploads/<%= p.image %>" width="150">
             <% } else { %>
-              <span class="text-muted">ไม่มีรูป</span>
+              ไม่มีรูป
             <% } %>
           </td>
-          <td><%= product.name %></td>
-          <td><%= product.price %> บาท</td>
-          <td><%= product.category %></td>
-          <td><%= product.stock %></td>
+          <td><b><%= p.name %></b></td>
+          <td><i><%= p.category %></i></td>
+          <td><font color="green" size="5"><%= p.price %></font> บาท</td>
           <td>
-            <a href="/edit/<%= product.id %>" class="btn btn-warning btn-sm">แก้ไข</a>
-            <form action="/delete/<%= product.id %>" method="POST" style="display:inline"
-                  onsubmit="return confirm('ยืนยันการลบ?')">
-              <button type="submit" class="btn btn-danger btn-sm">ลบ</button>
+            <% if (p.stock == 0) { %>
+              <blink><font color="red">หมดเกลี้ยง!</font></blink>
+            <% } else { %>
+              <%= p.stock %>
+            <% } %>
+          </td>
+          <td>
+            <a href="/products/<%= p.id %>/edit">แก้ข้อมูล</a>
+            <br><br>
+            <!-- ลบแบบไม่มี Modal เตือน (ลบเลย) เพื่อความกาก -->
+            <form action="/products/<%= p.id %>?_method=DELETE" method="POST">
+                <button type="submit" style="color: white; background: red;">ลบทิ้งซะ!</button>
             </form>
           </td>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <p align="right">สร้างโดย: KIMDISNY (เด็กคอม 67)</p>
+
 </body>
 </html>
