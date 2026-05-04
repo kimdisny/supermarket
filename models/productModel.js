@@ -1,57 +1,50 @@
+const db = require('./database');
 
-const mysql = require('mysql2');
+const Product = {
+  // READ ALL (with optional search)
+  getAll: async (search = '') => {
+    if (search) {
+      const [rows] = await db.execute(
+        'SELECT * FROM `products` WHERE `name` LIKE ? OR `category` LIKE ? ORDER BY `id` DESC',
+        [`%${search}%`, `%${search}%`]
+      );
+      return rows;
+    }
+    const [rows] = await db.execute('SELECT * FROM `products` ORDER BY `id` DESC');
+    return rows;
+  },
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',        // ใส่รหัสผ่านถ้ามี
-  database: 'supermarket_db'
-});
+  // READ ONE
+  getById: async (id) => {
+    const [rows] = await db.execute('SELECT * FROM `products` WHERE `id` = ?', [id]);
+    return rows[0];
+  },
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Database connection failed:', err);
-    return;
+  // CREATE
+  create: async (data) => {
+    const { name, category, price, stock, image } = data;
+    const [result] = await db.execute(
+      'INSERT INTO `products` (`name`, `category`, `price`, `stock`, `image`) VALUES (?, ?, ?, ?, ?)',
+      [name, category, price, stock, image]
+    );
+    return result;
+  },
+
+  // UPDATE
+  update: async (id, data) => {
+    const { name, category, price, stock, image } = data;
+    const [result] = await db.execute(
+      'UPDATE `products` SET `name`=?, `category`=?, `price`=?, `stock`=?, `image`=? WHERE `id`=?',
+      [name, category, price, stock, image, id]
+    );
+    return result;
+  },
+
+  // DELETE
+  delete: async (id) => {
+    const [result] = await db.execute('DELETE FROM `products` WHERE `id` = ?', [id]);
+    return result;
   }
-  console.log('Connected to MySQL database');
-});
-
-// ดึงสินค้าทั้งหมด
-const getAllProducts = (callback) => {
-  const sql = 'SELECT * FROM products ORDER BY created_at DESC';
-  connection.query(sql, callback);
 };
 
-// ดึงสินค้าตาม ID
-const getProductById = (id, callback) => {
-  const sql = 'SELECT * FROM products WHERE id = ?';
-  connection.query(sql, [id], callback);
-};
-
-// เพิ่มสินค้า
-const createProduct = (data, callback) => {
-  const sql = 'INSERT INTO products (name, price, category, stock, image) VALUES (?, ?, ?, ?, ?)';
-  const values = [data.name, data.price, data.category, data.stock, data.image];
-  connection.query(sql, values, callback);
-};
-
-// แก้ไขสินค้า
-const updateProduct = (id, data, callback) => {
-  const sql = 'UPDATE products SET name=?, price=?, category=?, stock=?, image=? WHERE id=?';
-  const values = [data.name, data.price, data.category, data.stock, data.image, id];
-  connection.query(sql, values, callback);
-};
-
-// ลบสินค้า
-const deleteProduct = (id, callback) => {
-  const sql = 'DELETE FROM products WHERE id = ?';
-  connection.query(sql, [id], callback);
-};
-
-module.exports = {
-  getAllProducts,
-  getProductById,
-  createProduct,
-  updateProduct,
-  deleteProduct
-};
+module.exports = Product;
