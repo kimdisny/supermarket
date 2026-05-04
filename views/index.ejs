@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>เว็บขายของสุดกาก</title>
-  <!-- ตัด Bootstrap ทิ้งเพื่อความกากระดับตำนาน -->
+
 </head>
-<body bgcolor="#FFFF00" text="blue"> <!-- พื้นหลังเหลือง ตัวอักษรน้ำเงิน ตีกันสุดๆ -->
+<body bgcolor="#FFFF00" text="blue">
 
   <center>
     <h1><font color="red" size="7">=== Supermarket KIMDISNY ===</font></h1>
@@ -17,7 +17,7 @@
   <hr border="5">
 
   <div style="padding: 20px;">
-    <!-- แจ้งเตือนแบบบ้านๆ -->
+   
     <% if (success) { %>
       <h2 style="color: white; background: black;">สถานะ: <%= success %> สำเร็จแล้วนะ!</h2>
     <% } %>
@@ -53,7 +53,7 @@
           <td align="center"><%= i + 1 %></td>
           <td>
             <% if (p.image && p.image !== 'no-image.png') { %>
-              <!-- รูปใหญ่บ้างเล็กบ้าง ไม่จัดขนาด -->
+            
               <img src="/uploads/<%= p.image %>" width="150">
             <% } else { %>
               ไม่มีรูป
@@ -72,7 +72,7 @@
           <td>
             <a href="/products/<%= p.id %>/edit">แก้ข้อมูล</a>
             <br><br>
-            <!-- ลบแบบไม่มี Modal เตือน (ลบเลย) เพื่อความกาก -->
+            
             <form action="/products/<%= p.id %>?_method=DELETE" method="POST">
                 <button type="submit" style="color: white; background: red;">ลบทิ้งซะ!</button>
             </form>
