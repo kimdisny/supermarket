@@ -2,66 +2,146 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title><%= product ? 'แก้ไขสินค้า' : 'เพิ่มสินค้า' %></title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Supermarket Admin</title>
+  <!-- Bootstrap 5 (ปรับจาก Bootstrap 4 ใน login-register.ejs เดิม) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f4f6f9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    /* Centered Container (ตามใบงาน) */
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    }
+    .form-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #198754;
+      padding-bottom: .5rem;
+      color: #1a1a2e;
+    }
+    /* Image Preview (โบนัสพิเศษ ตามใบงาน) */
+    #imgPreview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      margin-top: 8px;
+      display: none;
+    }
+    #previewPlaceholder {
+      width: 100%;
+      height: 100px;
+      background: #f8f9fa;
+      border: 2px dashed #dee2e6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: .85rem;
+      margin-top: 8px;
+    }
+  </style>
 </head>
-<body class="bg-light">
-<div class="container mt-5">
-  <div class="card shadow mx-auto" style="max-width: 600px;">
-    <div class="card-body">
-      <h4 class="card-title mb-4">
-        <%= product ? '✏️ แก้ไขสินค้า' : '➕ เพิ่มสินค้าใหม่' %>
-      </h4>
+<body>
+<div class="form-card">
 
-      <form action="<%= action %>" method="POST" enctype="multipart/form-data">
+  <!-- Form Title -->
+  <div class="form-title">🛒 <%= title %></div>
 
-        <div class="mb-3">
-          <label class="form-label">ชื่อสินค้า</label>
-          <input type="text" name="name" class="form-control"
-                 value="<%= product ? product.name : '' %>" required>
-        </div>
+  <!-- ฟอร์ม (ปรับจากฟอร์ม register ใน login-register.ejs เดิม) -->
+  <form action="<%= action %>" method="POST" enctype="multipart/form-data" novalidate>
 
-        <div class="mb-3">
-          <label class="form-label">ราคา (บาท)</label>
-          <input type="number" name="price" class="form-control" step="0.01"
-                 value="<%= product ? product.price : '' %>" required>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">หมวดหมู่</label>
-          <input type="text" name="category" class="form-control"
-                 value="<%= product ? product.category : '' %>">
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">จำนวนสต็อก</label>
-          <input type="number" name="stock" class="form-control"
-                 value="<%= product ? product.stock : 0 %>">
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">รูปภาพสินค้า (File Input)</label>
-          <input type="file" name="image" class="form-control" accept="image/*" id="imageInput">
-
-          <div class="mt-3">
-            <img id="preview"
-                 src="<%= product && product.image ? '/uploads/' + product.image : '' %>"
-                 style="max-width: 200px; display: <%= product && product.image ? 'block' : 'none' %>;"
-                 class="img-thumbnail">
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between mt-4">
-          <a href="/" class="btn btn-secondary">ยกเลิก</a>
-          <button type="submit" class="btn btn-success">บันทึก</button>
-        </div>
-
-      </form>
+    <!-- ชื่อสินค้า (เทียบกับ user_name เดิม) -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">ชื่อสินค้า <span class="text-danger">*</span></label>
+      <input type="text" name="name" class="form-control"
+             placeholder="เช่น น้ำดื่มสิงห์ 600ml"
+             value="<%= product ? product.name : '' %>" required>
     </div>
-  </div>
+
+    <!-- หมวดหมู่ -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">หมวดหมู่</label>
+      <input type="text" name="category" class="form-control"
+             placeholder="เช่น เครื่องดื่ม, ขนม, ของสด"
+             value="<%= product ? product.category : '' %>">
+    </div>
+
+    <!-- ราคา & สต็อก (Number Inputs ตามใบงาน, min="0") -->
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <label class="form-label fw-semibold">ราคา (บาท) <span class="text-danger">*</span></label>
+        <input type="number" name="price" class="form-control" min="0" step="0.01"
+               placeholder="0.00"
+               value="<%= product ? product.price : '' %>" required>
+      </div>
+      <div class="col-6">
+        <label class="form-label fw-semibold">จำนวนสต็อก <span class="text-danger">*</span></label>
+        <input type="number" name="stock" class="form-control" min="0"
+               placeholder="0"
+               value="<%= product ? product.stock : '' %>" required>
+      </div>
+    </div>
+
+    <!-- File Input รูปภาพ (ตามใบงาน) -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold">รูปภาพสินค้า</label>
+      <input type="file" name="image" class="form-control" accept="image/*" id="fileInput">
+
+      <!-- Image Preview (โบนัสพิเศษ ตามใบงาน) -->
+      <% if (product && product.image && product.image !== 'no-image.png') { %>
+        <img id="imgPreview" src="/uploads/<%= product.image %>" style="display:block" alt="preview">
+        <div id="previewPlaceholder" style="display:none">📷 เลือกรูปภาพเพื่อแสดงตัวอย่าง</div>
+      <% } else { %>
+        <img id="imgPreview" src="" alt="preview">
+        <div id="previewPlaceholder">📷 เลือกรูปภาพเพื่อแสดงตัวอย่าง</div>
+      <% } %>
+    </div>
+
+    <!-- Submit (สีเขียว) + Cancel (สีเทา) ตามใบงาน -->
+    <div class="d-grid gap-2">
+      <button type="submit" class="btn btn-success fw-bold">💾 บันทึกข้อมูล</button>
+      <a href="/" class="btn btn-secondary">✕ ยกเลิก (กลับหน้าหลัก)</a>
+    </div>
+
+  </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  // Image Preview - แสดงรูปทันทีที่เลือกไฟล์ (โบนัสพิเศษ ตามใบงาน)
+  document.getElementById('fileInput').addEventListener('change', function () {
+    const file = this.files[0];
+    const preview     = document.getElementById('imgPreview');
+    const placeholder = document.getElementById('previewPlaceholder');
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+</body>
+</html>
   // สคริปต์สำหรับแสดงรูปตัวอย่าง (Image Preview)
   document.getElementById('imageInput').addEventListener('change', function(event) {
     const [file] = event.target.files;
