@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>*** เพิ่มของกากๆ ***</title>
-  <!-- ลบ Bootstrap ออกไปเลยเพื่อความกาก -->
+
   <style>
     body {
-      background-color: #00FF00; /* สีเขียวสะท้อนแสงแสบตา */
-      font-family: "MS Sans Serif", cursive; /* ฟอนต์โบราณ */
+      background-color: #00FF00; 
+      font-family: "MS Sans Serif", cursive; 
       padding: 50px;
     }
     .kark-container {
-      background-color: #FF00FF; /* สีชมพูบานเย็นตัดกับพื้นหลัง */
-      border: 10px groove #FFD700; /* ขอบหนาๆ สีทอง */
+      background-color: #FF00FF;
+      border: 10px groove #FFD700;
       padding: 20px;
       width: 400px;
       margin: auto;
@@ -41,7 +41,7 @@
       color: white;
       font-size: 20px;
       width: 100%;
-      cursor: wait; /* ให้เมาส์ขึ้นเป็นรูปนาฬิกาทรายเท่ๆ */
+      cursor: wait; 
       border: 5px outset silver;
       margin-top: 15px;
     }
@@ -63,6 +63,67 @@
 <body>
 
 <div class="kark-container">
+  <div class="bad-title">
+    <marquee>-- <%= title %> --</marquee> 
+  </div>
+
+  <form action="<%= action %>" method="POST" enctype="multipart/form-data">
+
+    <label>ชื่อสินค้า (ใส่มาเถอะ):</label>
+    <input type="text" name="name" value="<%= product ? product.name : '' %>">
+
+    <label>หมวดหมู่ (อะไรก็ได้):</label>
+    <input type="text" name="category" value="<%= product ? product.category : '' %>">
+
+    <label>ราคา (บาท):</label>
+    <input type="number" name="price" min="0" value="<%= product ? product.price : '' %>">
+
+    <label>สต็อกที่มี:</label>
+    <input type="number" name="stock" min="0" value="<%= product ? product.stock : '' %>">
+
+    <label>รูปภาพ (ถ้ามี):</label>
+    <input type="file" name="image" id="fileInput" accept="image/*">
+
+    
+    <center>
+      <% if (product && product.image && product.image !== 'no-image.png') { %>
+        <img id="imgPreview" src="/uploads/<%= product.image %>" width="150" style="display:block">
+      <% } else { %>
+        <img id="imgPreview" src="" width="150" style="display:none">
+        <div id="previewPlaceholder" style="background:white; border:1px solid black; padding:5px;">
+            (ไม่มีรูปว้อย!)
+        </div>
+      <% } %>
+    </center>
+
+    <button type="submit" class="btn-win">กดเพื่อบันทึกด่วน!!</button>
+    <a href="/" class="btn-loose">ไม่อยากทำแล้ว (กลับบ้าน)</a>
+
+  </form>
+</div>
+
+<p align="center"><i>WEB DESIGN BY KIMDISNY (COC PSU)</i></p>
+
+<script>
+  
+  document.getElementById('fileInput').addEventListener('change', function () {
+    const file = this.files[0];
+    const preview = document.getElementById('imgPreview');
+    const placeholder = document.getElementById('previewPlaceholder');
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        if(placeholder) placeholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+
+</body>
+</html><div class="kark-container">
   <div class="bad-title">
     <marquee>-- <%= title %> --</marquee> <!-- ใส่ตัววิ่งให้อาจารย์เวียนหัว -->
   </div>
