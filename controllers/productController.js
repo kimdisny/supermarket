@@ -1,67 +1,103 @@
-const productModel = require('../models/productModel');
-const path = require('path');
-const fs = require('fs');
+const Product = require('../models/productModel');
+const fs      = require('fs');
+const path    = require('path');
 
-// แสดงรายการสินค้าทั้งหมด
-const index = (req, res) => {
-  productModel.getAllProducts((err, products) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('Database error');
+const productController = {
+
+  // ─── READ (Dashboard / Index) ─────────────────────────────
+  index: async (req, res) => {
+    try {
+      const search   = req.query.search || '';
+      const success  = req.query.success || '';
+      const products = await Product.getAll(search);
+      res.render('index', { products, search, success });
+    } catch (err) {
+      res.status(500).send('Database Error: ' + err.message);
     }
-    res.render('index', { products });
-  });
+  },
+
+  // ─── CREATE – แสดงฟอร์ม ───────────────────────────────────
+  showCreate: (req, res) => {
+    res.render('form', {
+      product: null,
+      action:  '/products',
+      method:  'POST',
+      title:   'เพิ่มสินค้า'
+    });
+  },
+
+  // ─── CREATE – บันทึก ──────────────────────────────────────
+  create: async (req, res) => {
+    try {
+      const image = req.file ? req.file.filename : 'no-image.png';
+      await Product.create({ ...req.body, image });
+      res.redirect('/?success=created');
+    } catch (err) {
+      res.status(500).send('Error: ' + err.message);
+    }
+  },
+
+  // ─── UPDATE – แสดงฟอร์ม ───────────────────────────────────
+  showEdit: async (req, res) => {
+    try {
+      const product = await Product.getById(req.params.id);
+      if (!product) return res.redirect('/');
+      res.render('form', {
+        product,
+        action: `/products/${req.params.id}?_method=PUT`,
+        method: 'POST',
+        title:  'แก้ไขสินค้า'
+      });
+    } catch (err) {
+      res.status(500).send('Error: ' + err.message);
+    }
+  },
+
+  // ─── UPDATE – บันทึก ──────────────────────────────────────
+  update: async (req, res) => {
+    try {
+      const old = await Product.getById(req.params.id);
+      if (!old) return res.redirect('/');
+
+      let image = old.image;
+
+      // ถ้ามีการอัปโหลดรูปใหม่ → ลบรูปเก่าด้วย fs.unlink
+      if (req.file) {
+        if (old.image && old.image !== 'no-image.png') {
+          const oldPath = path.join(__dirname, '../public/uploads', old.image);
+          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+        image = req.file.filename;
+      }
+
+      await Product.update(req.params.id, { ...req.body, image });
+      res.redirect('/?success=updated');
+    } catch (err) {
+      res.status(500).send('Error: ' + err.message);
+    }
+  },
+
+  // ─── DELETE ───────────────────────────────────────────────
+  delete: async (req, res) => {
+    try {
+      const product = await Product.getById(req.params.id);
+
+      // ลบไฟล์รูปภาพออกจากโฟลเดอร์ /uploads
+      if (product && product.image && product.image !== 'no-image.png') {
+        const imgPath = path.join(__dirname, '../public/uploads', product.image);
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+      }
+
+      await Product.delete(req.params.id);
+      res.redirect('/?success=deleted');
+    } catch (err) {
+      res.status(500).send('Error: ' + err.message);
+    }
+  }
+
 };
 
-// แสดงฟอร์มเพิ่มสินค้า
-const create = (req, res) => {
-  res.render('form', { product: null, action: '/store' });
-};
-
-// บันทึกสินค้าใหม่
-const store = (req, res) => {
-  const { name, price, category, stock } = req.body;
-  const image = req.file ? req.file.filename : null;
-
-  const data = { name, price, category, stock, image };
-
-  productModel.createProduct(data, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('Error saving product');
-    }
-    res.redirect('/');
-  });
-};
-
-// แสดงฟอร์มแก้ไขสินค้า
-const edit = (req, res) => {
-  const id = req.params.id;
-  productModel.getProductById(id, (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(404).send('Product not found');
-    }
-    res.render('form', { product: results[0], action: `/update/${id}` });
-  });
-};
-
-// อัปเดตสินค้า
-const update = (req, res) => {
-  const id = req.params.id;
-  const { name, price, category, stock } = req.body;
-
-  productModel.getProductById(id, (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(404).send('Product not found');
-    }
-
-    const oldProduct = results[0];
-    let image = oldProduct.image; // ใช้รูปเดิมถ้าไม่ได้อัปโหลดใหม่
-
-    if (req.file) {
-      image = req.file.filename;
-      // ลบรูปเดิม
-      if (oldProduct.image) {
+module.exports = productController;
         const oldPath = path.join(__dirname, '../public/uploads', oldProduct.image);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
