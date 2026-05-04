@@ -1,156 +1,127 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> | Supermarket Admin</title>
-  <!-- Bootstrap 5 (ปรับจาก Bootstrap 4 ใน login-register.ejs เดิม) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>*** เพิ่มของกากๆ ***</title>
+  <!-- ลบ Bootstrap ออกไปเลยเพื่อความกาก -->
   <style>
     body {
-      background: #f4f6f9;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
+      background-color: #00FF00; /* สีเขียวสะท้อนแสงแสบตา */
+      font-family: "MS Sans Serif", cursive; /* ฟอนต์โบราณ */
+      padding: 50px;
     }
-    /* Centered Container (ตามใบงาน) */
-    .form-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 2rem;
+    .kark-container {
+      background-color: #FF00FF; /* สีชมพูบานเย็นตัดกับพื้นหลัง */
+      border: 10px groove #FFD700; /* ขอบหนาๆ สีทอง */
+      padding: 20px;
+      width: 400px;
+      margin: auto;
+    }
+    .bad-title {
+      background-color: black;
+      color: yellow;
+      font-size: 30px;
+      text-align: center;
+      border: 5px dashed white;
+    }
+    label {
+      display: block;
+      color: blue;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    input {
+      background-color: #eee;
+      border: 3px inset gray;
+      width: 90%;
+    }
+    /* ปุ่มกากๆ แบบดั้งเดิม */
+    .btn-win {
+      background-color: red;
+      color: white;
+      font-size: 20px;
       width: 100%;
-      max-width: 500px;
-      box-shadow: 0 4px 20px rgba(0,0,0,.1);
+      cursor: wait; /* ให้เมาส์ขึ้นเป็นรูปนาฬิกาทรายเท่ๆ */
+      border: 5px outset silver;
+      margin-top: 15px;
     }
-    .form-title {
-      font-weight: 700;
-      font-size: 1.2rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #198754;
-      padding-bottom: .5rem;
-      color: #1a1a2e;
+    .btn-loose {
+      background-color: gray;
+      color: black;
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      border: 1px solid black;
+      margin-top: 5px;
     }
-    /* Image Preview (โบนัสพิเศษ ตามใบงาน) */
     #imgPreview {
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid #dee2e6;
-      margin-top: 8px;
-      display: none;
-    }
-    #previewPlaceholder {
-      width: 100%;
-      height: 100px;
-      background: #f8f9fa;
-      border: 2px dashed #dee2e6;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #aaa;
-      font-size: .85rem;
-      margin-top: 8px;
+        border: 10px solid white;
+        margin-top: 10px;
     }
   </style>
 </head>
 <body>
-<div class="form-card">
 
-  <!-- Form Title -->
-  <div class="form-title">🛒 <%= title %></div>
+<div class="kark-container">
+  <div class="bad-title">
+    <marquee>-- <%= title %> --</marquee> <!-- ใส่ตัววิ่งให้อาจารย์เวียนหัว -->
+  </div>
 
-  <!-- ฟอร์ม (ปรับจากฟอร์ม register ใน login-register.ejs เดิม) -->
-  <form action="<%= action %>" method="POST" enctype="multipart/form-data" novalidate>
+  <!-- ต้องมี enctype เพื่ออัปโหลดรูปภาพ -->
+  <form action="<%= action %>" method="POST" enctype="multipart/form-data">
 
-    <!-- ชื่อสินค้า (เทียบกับ user_name เดิม) -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold">ชื่อสินค้า <span class="text-danger">*</span></label>
-      <input type="text" name="name" class="form-control"
-             placeholder="เช่น น้ำดื่มสิงห์ 600ml"
-             value="<%= product ? product.name : '' %>" required>
-    </div>
+    <label>ชื่อสินค้า (ใส่มาเถอะ):</label>
+    <input type="text" name="name" value="<%= product ? product.name : '' %>">
 
-    <!-- หมวดหมู่ -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold">หมวดหมู่</label>
-      <input type="text" name="category" class="form-control"
-             placeholder="เช่น เครื่องดื่ม, ขนม, ของสด"
-             value="<%= product ? product.category : '' %>">
-    </div>
+    <label>หมวดหมู่ (อะไรก็ได้):</label>
+    <input type="text" name="category" value="<%= product ? product.category : '' %>">
 
-    <!-- ราคา & สต็อก (Number Inputs ตามใบงาน, min="0") -->
-    <div class="row g-2 mb-3">
-      <div class="col-6">
-        <label class="form-label fw-semibold">ราคา (บาท) <span class="text-danger">*</span></label>
-        <input type="number" name="price" class="form-control" min="0" step="0.01"
-               placeholder="0.00"
-               value="<%= product ? product.price : '' %>" required>
-      </div>
-      <div class="col-6">
-        <label class="form-label fw-semibold">จำนวนสต็อก <span class="text-danger">*</span></label>
-        <input type="number" name="stock" class="form-control" min="0"
-               placeholder="0"
-               value="<%= product ? product.stock : '' %>" required>
-      </div>
-    </div>
+    <label>ราคา (บาท):</label>
+    <input type="number" name="price" min="0" value="<%= product ? product.price : '' %>">
 
-    <!-- File Input รูปภาพ (ตามใบงาน) -->
-    <div class="mb-4">
-      <label class="form-label fw-semibold">รูปภาพสินค้า</label>
-      <input type="file" name="image" class="form-control" accept="image/*" id="fileInput">
+    <label>สต็อกที่มี:</label>
+    <input type="number" name="stock" min="0" value="<%= product ? product.stock : '' %>">
 
-      <!-- Image Preview (โบนัสพิเศษ ตามใบงาน) -->
+    <label>รูปภาพ (ถ้ามี):</label>
+    <input type="file" name="image" id="fileInput" accept="image/*">
+
+    <!-- ส่วนแสดงตัวอย่างรูปกากๆ -->
+    <center>
       <% if (product && product.image && product.image !== 'no-image.png') { %>
-        <img id="imgPreview" src="/uploads/<%= product.image %>" style="display:block" alt="preview">
-        <div id="previewPlaceholder" style="display:none">📷 เลือกรูปภาพเพื่อแสดงตัวอย่าง</div>
+        <img id="imgPreview" src="/uploads/<%= product.image %>" width="150" style="display:block">
       <% } else { %>
-        <img id="imgPreview" src="" alt="preview">
-        <div id="previewPlaceholder">📷 เลือกรูปภาพเพื่อแสดงตัวอย่าง</div>
+        <img id="imgPreview" src="" width="150" style="display:none">
+        <div id="previewPlaceholder" style="background:white; border:1px solid black; padding:5px;">
+            (ไม่มีรูปว้อย!)
+        </div>
       <% } %>
-    </div>
+    </center>
 
-    <!-- Submit (สีเขียว) + Cancel (สีเทา) ตามใบงาน -->
-    <div class="d-grid gap-2">
-      <button type="submit" class="btn btn-success fw-bold">💾 บันทึกข้อมูล</button>
-      <a href="/" class="btn btn-secondary">✕ ยกเลิก (กลับหน้าหลัก)</a>
-    </div>
+    <button type="submit" class="btn-win">กดเพื่อบันทึกด่วน!!</button>
+    <a href="/" class="btn-loose">ไม่อยากทำแล้ว (กลับบ้าน)</a>
 
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<p align="center"><i>WEB DESIGN BY KIMDISNY (COC PSU)</i></p>
+
 <script>
-  // Image Preview - แสดงรูปทันทีที่เลือกไฟล์ (โบนัสพิเศษ ตามใบงาน)
+  // Image Preview แบบกากๆ
   document.getElementById('fileInput').addEventListener('change', function () {
     const file = this.files[0];
-    const preview     = document.getElementById('imgPreview');
+    const preview = document.getElementById('imgPreview');
     const placeholder = document.getElementById('previewPlaceholder');
     if (file) {
       const reader = new FileReader();
       reader.onload = e => {
         preview.src = e.target.result;
         preview.style.display = 'block';
-        placeholder.style.display = 'none';
+        if(placeholder) placeholder.style.display = 'none';
       };
       reader.readAsDataURL(file);
     }
   });
 </script>
-</body>
-</html>
-  // สคริปต์สำหรับแสดงรูปตัวอย่าง (Image Preview)
-  document.getElementById('imageInput').addEventListener('change', function(event) {
-    const [file] = event.target.files;
-    if (file) {
-      const preview = document.getElementById('preview');
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-    }
-  });
-</script>
+
 </body>
 </html>
